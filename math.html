@@ -1,0 +1,103 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Math</title>
+</head>
+<body>
+<h1>Math</h1>
+<div id="message" role="status" style="position:absolute; left: -9999; top: -9999;"></div>
+<div id="error" role="status"></div>
+
+<div id="container">
+<div id="results" role="log"></div>
+
+<div id="input">
+<label>Expression: <input type="text" id="expression" accesskey="e"></label>
+<label>announce only result <input type="checkbox" id="result-only" accesskey="r"></label>
+</div>
+</div>
+
+
+<script src="math.min.js"></script>
+
+<script>
+const container = document.querySelector("#container");
+const results = document.querySelector("#results");
+const expression = document.querySelector("#expression");
+const error = document.querySelector("#error");
+const message = document.querySelector("#message");
+const resultOnly = document.querySelector("#result-only");
+let resultCount = 0;
+
+resultOnly.addEventListener("change", e => setAnnouncement(e.target.checked));
+
+expression.addEventListener("click", e => {
+execute(e.target.value)
+e.target.value = "";
+});
+
+results.addEventListener("click", e => {
+const container = e.target.matches(".result-container")? e.target : e.target.parentElement ;
+const expression = container.querySelector(".input-expression").textContent;
+execute(expression);
+});
+
+container.addEventListener("keydown", e => {
+if ((e.key === "Enter" || e.key === " ") && !e.shiftKey && !e.altKey && !e.ctrlKey) {
+e.preventDefault();
+e.target.click();
+} // if
+}); // keydown
+
+
+function execute (expression) {
+try {
+displayResult(expression, math.evaluate(expression));
+} catch (e) {
+displayError(e);
+} // try
+} // execute
+
+function displayResult (expression, result) {
+results.appendChild(createResult(expression, result, resultCount++));
+} // displayResult
+
+function displayError (e) {
+error.textContent = e.message;
+console.error (e);
+} // displayError
+
+function createResult(expression, result, count) {
+const id = `result-${count}`;
+const container = document.createElement("div");
+container.className = "result-container";
+container.id = id;
+container.innerHTML = `
+<div class="input-expression">${expression}</div>
+<div class="result-expression">${result}</div>
+`;
+
+if (resultOnly.checked) {
+container.querySelector(".result-expression").tabIndex = 0;
+message.textContent = container.querySelector(".result-expression").textContent;
+} else {
+container.tabIndex = 0;
+} // if
+
+return container;
+} // createResult
+
+function setAnnouncement (resultOnly) {
+results.querySelectorAll("[tabindex]").forEach(x => x.removeAttribute("tabindex"));
+
+results.querySelectorAll(
+resultOnly? ".result-expression" : ".result-container"
+).forEach(x => x.tabIndex = 0);
+
+resultOnly? results.removeAttribute("role") : results.setAttribute("role", "log");
+} // setAnnouncement
+
+</script>
+</body>
+</html>

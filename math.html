@@ -29,37 +29,62 @@ const error = document.querySelector("#error");
 const message = document.querySelector("#message");
 const resultOnly = document.querySelector("#result-only");
 let resultCount = 0;
+let history = null;
+
+const parser = math.parser();
+parser.set("clear", function () {parser.clear(); return "All symbols removed.";});
 
 resultOnly.addEventListener("change", e => setAnnouncement(e.target.checked));
 
 expression.addEventListener("click", e => {
-execute(e.target.value)
+const expression = e.target.value.trim();
+if (expression === "") return;
+execute(expression);
 e.target.value = "";
 });
 
 results.addEventListener("click", e => {
 const container = e.target.matches(".result-container")? e.target : e.target.parentElement ;
-const expression = container.querySelector(".input-expression").textContent;
-execute(expression);
+const _expression = container.querySelector(".input-expression").textContent;
+expression.value = _expression;
+expression.focus();
 });
 
 container.addEventListener("keydown", e => {
-if ((e.key === "Enter" || e.key === " ") && !e.shiftKey && !e.altKey && !e.ctrlKey) {
+if (e.key === "Enter" && !e.shiftKey && !e.altKey && !e.ctrlKey) {
 e.preventDefault();
 e.target.click();
+return;
+} // if
+
+if (e.key === "ArrowUp" || e.key === "ArrowDown") {
+history = getHistory(history, e.key === "ArrowUp"? -1 : 1);
+e.preventDefault();
+return;
+} // if
+
+if (e.ctrlKey && (e.key === "Home" || e.key === "End")) {
+if (e.key === "Home") history = getHistory(results.children[0]);
+else history = getHistory(null);
+
+e.preventDefault();
+return;
 } // if
 }); // keydown
 
 
 function execute (expression) {
 try {
-displayResult(expression, math.evaluate(expression));
+displayResult(expression, parser.evaluate(expression));
+history = null;
 } catch (e) {
 displayError(e);
 } // try
 } // execute
 
 function displayResult (expression, result) {
+parser.evaluate(`$_ = ${result}`);
+parser.evaluate(`$0 = ${expression}`);
 results.appendChild(createResult(expression, result, resultCount++));
 } // displayResult
 
@@ -97,6 +122,42 @@ resultOnly? ".result-expression" : ".result-container"
 
 resultOnly? results.removeAttribute("role") : results.setAttribute("role", "log");
 } // setAnnouncement
+
+function getHistory (history, direction = 0) {
+if (direction !== 0) {
+if (direction === 1 && !history) return null;
+
+const _history = history;
+history = direction === -1? historyPrevious(history) : historyNext(history);
+if (direction === -1 && !history) return _history;
+} // if
+
+expression.value = history?
+history.querySelector(".input-expression").textContent : "";
+
+return history;
+} // getHistory
+
+function historyPrevious (history) {
+if (history) {
+history = history.previousElementSibling;
+} else {
+history = results.children[results.children.length-1];
+} // if
+
+return history;
+} // historyPrevious
+
+function historyNext (history) {
+if (history) {
+history = history.nextElementSibling;
+} else {
+history = results.children[0];
+} // if
+
+return history;
+} // historyNext
+
 
 </script>
 </body>

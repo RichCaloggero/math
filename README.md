@@ -2,7 +2,7 @@
 
 A simple program to show how one might use mathjs (https://mathjs.org).
 
-- run: https://RichCaloggero.github.io/math/math.html
+- run: [](https://RichCaloggero.github.io/math/math.html)
 - code: https://raw.githubusercontent.com/RichCaloggero/math/master/math.html
 
 ## Accessibility

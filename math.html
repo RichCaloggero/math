@@ -14,7 +14,7 @@
 
 <div id="input">
 <label>Expression: <input autofocus type="text" id="expression" accesskey="e"></label>
-<label>announce only result when browsing history: <input type="checkbox" checked id="result-only" accesskey="r"></label>
+<label>announce only result when browsing history: <input type="checkbox" id="result-only" accesskey="r"></label>
 </div>
 </div>
 
@@ -83,6 +83,7 @@ displayError(e);
 } // execute
 
 function displayResult (expression, result) {
+parser.evaluate(`$_ = "${result}"`);
 results.appendChild(createResult(expression, result, resultCount++));
 } // displayResult
 

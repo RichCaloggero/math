@@ -14,7 +14,7 @@
 
 <div id="input">
 <label>Expression: <input autofocus type="text" id="expression" accesskey="e"></label>
-<label>announce only result <input type="checkbox" id="result-only" accesskey="r"></label>
+<label>announce only result when browsing history: <input type="checkbox" checked id="result-only" accesskey="r"></label>
 </div>
 </div>
 
@@ -50,7 +50,7 @@ expression.value = _expression;
 expression.focus();
 });
 
-container.addEventListener("keydown", e => {
+expression.addEventListener("keydown", e => {
 if (e.key === "Enter" && !e.shiftKey && !e.altKey && !e.ctrlKey) {
 e.preventDefault();
 e.target.click();
@@ -83,8 +83,6 @@ displayError(e);
 } // execute
 
 function displayResult (expression, result) {
-parser.evaluate(`$_ = ${result}`);
-parser.evaluate(`$0 = ${expression}`);
 results.appendChild(createResult(expression, result, resultCount++));
 } // displayResult
 
